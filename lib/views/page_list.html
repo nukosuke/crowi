@@ -51,21 +51,6 @@
     </div>
   </div>
 
-  <script type="text/javascript">
-    $(function(){
-        $('#view-timeline .timeline-body').each(function()
-        {
-          var id = $(this).attr('id');
-          var contentId = '#' + id + ' > script';
-          var revisionBody = '#' + id + ' .revision-body';
-          var revisionPath = '#' + id + ' .revision-path';
-          var renderer = new Crowi.renderer($(contentId).html(), $(revisionBody));
-          renderer.render();
-        });
-        //$('.tooltip .tabs').tabs();
-    });
-  </script>
-
 </div> {# /.content-main #}
 
 

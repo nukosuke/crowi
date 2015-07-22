@@ -93,21 +93,6 @@
 {% block layout_sidebar %}
 
 <a href="" class=" hidden-xs hidden-sm layout-control" id="toggle-sidebar"><i class="fa fa-chevron-right"></i> <span class="hide-on-affix-top"></span></a>
-<script>
-  $(function() {
-    $('#toggle-sidebar').click(function(e) {
-      var $mainContainer = $('.main-container');
-      if ($mainContainer.hasClass('aside-hidden')) {
-        $('.main-container').removeClass('aside-hidden');
-        $.cookie('aside-hidden', 0, { expires: 30, path: '/' });
-      } else {
-        $mainContainer.addClass('aside-hidden');
-        $.cookie('aside-hidden', 1, { expires: 30, path: '/' });
-      }
-      return false;
-    });
-  });
-</script>
 <aside class="sidebar col-md-3 hidden-xs hidden-sm hidden-print">
 
   {% block side_header %}
@@ -131,13 +116,6 @@
 </aside>
 {% include '../modal/widget_help.html' %}
 
-<script>
-  $(function() {
-    if ($.cookie('aside-hidden') == 1) {
-      $('.main-container').addClass('aside-hidden');
-    }
-  });
-</script>
 {% endblock %} {# layout_sidebar #}
 
 {% block layout_main %}

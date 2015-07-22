@@ -1,24 +1,26 @@
 'use strict';
 
-var gulp   = require('gulp');
-var sass   = require('gulp-sass');
-var cssmin = require('gulp-cssmin');
-var mocha  = require('gulp-spawn-mocha');
-var concat = require('gulp-concat');
-var rename = require('gulp-rename');
-var uglify = require('gulp-uglify');
-var jshint = require('gulp-jshint');
-
-var stylish = require('jshint-stylish');
-
-var pkg = require('./package.json');
+var gulp          = require('gulp');
+var sass          = require('gulp-sass');
+var cssmin        = require('gulp-cssmin');
+var mocha         = require('gulp-spawn-mocha');
+var concat        = require('gulp-concat');
+var rename        = require('gulp-rename');
+var uglify        = require('gulp-uglify');
+var jshint        = require('gulp-jshint');
+var webpack       = require('gulp-webpack');
+var webpackConfig = require('./webpack.config.js');
+var stylish       = require('jshint-stylish');
+var rimraf        = require('rimraf');
+var merge         = require('event-stream').merge;
+var pkg           = require('./package.json');
 
 
 var dirs = {
   cssSrc: './resource/css',
   cssDist: './public/css',
-  jsSrc: './resource/js',
-  jsDist: './public/js',
+  jsSrc: webpackConfig.dir.js,
+  jsDist: webpackConfig.dir.jsDist,
 };
 
 var tests = {
@@ -34,21 +36,11 @@ var css = {
 
 var js = {
   src: [
-    'bower_components/jquery/dist/jquery.js',
-    'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js',
-    'node_modules/socket.io-client/socket.io.js',
-    'bower_components/marked/lib/marked.js',
-    'bower_components/jquery.cookie/jquery.cookie.js',
-    'bower_components/highlightjs/highlight.pack.js',
     'resource/js/crowi.js'
   ],
-  dist: dirs.jsDist + '/crowi.js',
-  revealSrc: [
-    'bower_components/reveal.js/lib/js/head.min.js',
-    'bower_components/reveal.js/lib/js/html5shiv.js',
-    'bower_components/reveal.js/js/reveal.js'
-  ],
+  dist: dirs.jsDist + '/crowi-main.js',
   revealDist: dirs.jsDist + '/crowi-reveal.js',
+  componentsDist: dirs.jsDist + '/crowi-components.js',
   clientWatch: ['resource/js/**/*.js'],
   watch: ['test/**/*.test.js', 'app.js', 'lib/**/*.js'],
   lint: ['app.js', 'lib/**/*.js'],
@@ -61,26 +53,33 @@ var cssIncludePaths = [
   'bower_components/reveal.js/css'
 ];
 
-gulp.task('js:concat', function() {
-  gulp.src(js.revealSrc)
-    .pipe(concat('crowi-reveal.js'))
-    .pipe(gulp.dest(dirs.jsDist));
-
-  return gulp.src(js.src)
-    .pipe(concat('crowi.js'))
-    .pipe(gulp.dest(dirs.jsDist));
+gulp.task('js:clean', function(cb) {
+  rimraf(dirs.jsDist, cb);
 });
 
-gulp.task('js:min', ['js:concat'], function() {
-  gulp.src(js.revealDist)
-    .pipe(uglify())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest(dirs.jsDist));
+gulp.task('js:webpack', ['js:clean'], function() {
+  return gulp.src('')
+    .pipe(webpack(webpackConfig))
+    .pipe(gulp.dest(webpackConfig.dir.jsDist));
+});
 
-  return gulp.src(js.dist)
-    .pipe(uglify())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest(dirs.jsDist));
+gulp.task('js:min', ['js:webpack'], function() {
+  return merge(
+    gulp.src(js.revealDist)
+      .pipe(uglify())
+      .pipe(rename({suffix: '.min'}))
+      .pipe(gulp.dest(dirs.jsDist))
+      ,
+    gulp.src(js.componentsDist)
+      .pipe(uglify())
+      .pipe(rename({suffix: '.min'}))
+      .pipe(gulp.dest(dirs.jsDist))
+      ,
+    gulp.src(js.dist)
+      .pipe(uglify())
+      .pipe(rename({suffix: '.min'}))
+      .pipe(gulp.dest(dirs.jsDist))
+  );
 });
 
 gulp.task('jshint', function() {
@@ -129,7 +128,7 @@ gulp.task('watch', function() {
 
   var cssWatcher = gulp.watch(css.watch, ['css:concat']);
   cssWatcher.on('change', watchLogger);
-  var jsWatcher = gulp.watch(js.clientWatch, ['js:concat']);
+  var jsWatcher = gulp.watch(js.clientWatch, ['js:webpack']);
   jsWatcher.on('change', watchLogger);
   var testWatcher = gulp.watch(js.watch, ['test']);
   testWatcher.on('change', watchLogger);
@@ -137,5 +136,5 @@ gulp.task('watch', function() {
 
 gulp.task('css', ['css:sass', 'css:concat',]);
 gulp.task('default', ['css:min', 'js:min',]);
-gulp.task('dev', ['css:concat', 'js:concat','jshint', 'test']);
+gulp.task('dev', ['css:concat', 'js:webpack','jshint', 'test']);
 

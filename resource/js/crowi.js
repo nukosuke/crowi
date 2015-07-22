@@ -3,6 +3,14 @@
 /* Author: Sotaro KARASAWA <sotarok@crocos.co.jp>
 */
 
+var $ = require('jquery');
+var marked = require('marked');
+var hljs = require('highlight');
+var io = require('socket.io-client');
+
+require('jquery.cookie/jquery.cookie');
+require('bootstrap');
+
 var Crowi = {};
 
 Crowi.createErrorView = function(msg) {
@@ -104,6 +112,9 @@ Crowi.escape = function(s) {
   return s;
 };
 Crowi.unescape = function(s) {
+  if (!s) {
+    return '';
+  }
   s = s.replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
@@ -243,3 +254,161 @@ $(function() {
 
 });
 
+$(function(){
+    var renderer = new Crowi.renderer($('#raw-text-original').html());
+    renderer.render();
+    Crowi.correctHeaders('#revision-body-content');
+    Crowi.revisionToc('#revision-body-content', '#revision-toc');
+
+    $('a[data-toggle="tab"][href="#edit-form"]').on('show.bs.tab', function() {
+      $('.content-main').addClass('on-edit');
+    });
+    $('a[data-toggle="tab"][href="#edit-form"]').on('hide.bs.tab', function() {
+      $('.content-main').removeClass('on-edit');
+    });
+
+    $('#edit-form').submit(function()
+    {
+      //console.log('save');
+      //return false;
+    });
+
+    //data-spy="affix" data-offset-top="80"
+    var headerHeight = $('#page-header').outerHeight(true);
+    $('.header-wrap').css({height: headerHeight + 'px'});
+    $('#page-header').affix({
+      offset: {
+        top: function() {
+          return headerHeight + 74; // (54 header + 20 padding-top)
+        }
+      }
+    });
+    $('[data-affix-disable]').on('click', function(e) {
+      $elm = $($(this).data('affix-disable'));
+      $(window).off('.affix');
+      $elm.removeData('affix').removeClass('affix affix-top affix-bottom');
+      return false;
+    });
+});
+$(function() {
+  var pageId = $('#content-main').data('crowi-page-id');
+  $.get('/_api/page/' + pageId + '/bookmark', function(data) {
+    if (data.bookmarked) {
+      $('#bookmarkButton')
+        .removeClass('btn-default')
+        .addClass('btn-warning active bookmarked');
+      $('#bookmarkButton i')
+        .removeClass('fa-star-o')
+        .addClass('fa-star');
+    }
+  });
+
+  $('#bookmarkButton').click(function() {
+    $.post('/_api/page/' + pageId + '/bookmark', function(data) {
+    });
+  });
+  $('#pageLikeButton').click(function() {
+    $.post('/_api/page/' + pageId + '/like', function(data) {
+    });
+  });
+});
+//$(function() {
+//  var me = {{ user|json|safe }};
+//  var socket = io();
+//  socket.on('page edited', function (data) {
+//    if (data.user._id != me._id
+//      && data.page.path == {{ page.path|json|safe }}) {
+//      $('#notifPageEdited').removeClass('fk-hide').css({bottom: 0});
+//      $('#notifPageEdited .edited-user').html(data.user.name);
+//    }
+//  });
+//});
+$(function() {
+  var presentaionInitialized = false
+    , $b = $('body');
+
+  $(document).on('click', '.toggle-presentation', function(e) {
+    var $a = $(this);
+
+    e.preventDefault();
+    $b.toggleClass('overlay-on');
+
+    if (!presentaionInitialized) {
+      presentaionInitialized = true;
+
+      $('<iframe />').attr({
+        src: $a.attr('href')
+      }).appendTo($('#presentation-container'));
+    }
+  }).on('click', '.fullscreen-layer', function() {
+    $b.toggleClass('overlay-on');
+  });
+});
+$(function() {
+  $('#toggle-sidebar').click(function(e) {
+    var $mainContainer = $('.main-container');
+    if ($mainContainer.hasClass('aside-hidden')) {
+      $('.main-container').removeClass('aside-hidden');
+      $.cookie('aside-hidden', 0, { expires: 30, path: '/' });
+    } else {
+      $mainContainer.addClass('aside-hidden');
+      $.cookie('aside-hidden', 1, { expires: 30, path: '/' });
+    }
+    return false;
+  });
+});
+$(function() {
+  if ($.cookie('aside-hidden') == 1) {
+    $('.main-container').addClass('aside-hidden');
+  }
+});
+
+$(function() {
+  // preview watch
+  var prevContent = "";
+  var watchTimer = setInterval(function() {
+    var content = $('#form-body').val();
+    if (prevContent != content) {
+      var renderer = new Crowi.renderer($('#form-body').val(), $('#preview-body'));
+      renderer.render();
+
+      prevContent = content;
+    }
+  }, 500);
+
+  // tabs handle
+  $('textarea#form-body').on('keydown', function(event){
+    var self  = $(this)
+        start = this.selectionStart,
+        end   = this.selectionEnd
+        val   = self.val();
+
+    if (event.keyCode === 9) {
+      // tab
+      event.preventDefault();
+      self.val(
+        val.substring(0, start)
+        + '    '
+        + val.substring(end, val.length)
+      );
+      this.selectionStart = start + 4;
+      this.selectionEnd   = start + 4;
+    } else if (event.keyCode === 27) {
+      // escape
+      self.blur();
+    }
+  });
+});
+
+$(function(){
+    $('#view-timeline .timeline-body').each(function()
+    {
+      var id = $(this).attr('id');
+      var contentId = '#' + id + ' > script';
+      var revisionBody = '#' + id + ' .revision-body';
+      var revisionPath = '#' + id + ' .revision-path';
+      var renderer = new Crowi.renderer($(contentId).html(), $(revisionBody));
+      renderer.render();
+    });
+    //$('.tooltip .tabs').tabs();
+});
