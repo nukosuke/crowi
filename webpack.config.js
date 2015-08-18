@@ -20,7 +20,7 @@ module.exports = {
   devtool: 'inline-source-map',
   module: {
     loaders: [
-      { test: /\.jsx$/, loader: 'jsx-loader' }
+      { test: /\.jsx?$/, exclude: /(node_modules|bower_components)/, loader: "babel"}
     ]
   },
   resolve: {

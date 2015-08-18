@@ -8,7 +8,7 @@ var concat        = require('gulp-concat');
 var rename        = require('gulp-rename');
 var uglify        = require('gulp-uglify');
 var jshint        = require('gulp-jshint');
-var webpack       = require('gulp-webpack');
+var webpack       = require('webpack-stream');
 var webpackConfig = require('./webpack.config.js');
 var stylish       = require('jshint-stylish');
 var rimraf        = require('rimraf');
@@ -41,7 +41,7 @@ var js = {
   dist: dirs.jsDist + '/crowi-main.js',
   revealDist: dirs.jsDist + '/crowi-reveal.js',
   componentsDist: dirs.jsDist + '/crowi-components.js',
-  clientWatch: ['resource/js/**/*.js'],
+  clientWatch: ['resource/js/**/*.js', 'resource/js/**/*.jsx'],
   watch: ['test/**/*.test.js', 'app.js', 'lib/**/*.js'],
   lint: ['app.js', 'lib/**/*.js'],
   tests: tests.watch,
@@ -58,7 +58,7 @@ gulp.task('js:clean', function(cb) {
 });
 
 gulp.task('js:webpack', ['js:clean'], function() {
-  return gulp.src('')
+  return gulp.src(webpackConfig.entry.main)
     .pipe(webpack(webpackConfig))
     .pipe(gulp.dest(webpackConfig.dir.jsDist));
 });

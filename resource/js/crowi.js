@@ -4,8 +4,8 @@
 */
 
 var $ = require('jquery');
-var marked = require('marked');
-var hljs = require('highlight');
+//var marked = require('marked');
+//var hljs = require('highlight');
 var io = require('socket.io-client');
 
 require('jquery.cookie/jquery.cookie');
@@ -17,31 +17,31 @@ Crowi.createErrorView = function(msg) {
   $('#main').prepend($('<p class="alert-message error">' + msg + '</p>'));
 };
 
-Crowi.linkPath = function(revisionPath) {
-  var $revisionPath = revisionPath || '#revision-path';
-  var $title = $($revisionPath);
-  if (!$title.get(0)) {
-    return;
-  }
-
-  var path = '';
-  var pathHtml = '';
-  var splittedPath = $title.html().split(/\//);
-  splittedPath.shift();
-  splittedPath.forEach(function(sub) {
-    path += '/';
-    pathHtml += ' <a href="' + path + '">/</a> ';
-    if (sub) {
-      path += sub;
-      pathHtml += '<a href="' + path + '">' + sub + '</a>';
-    }
-  });
-  if (path.substr(-1, 1) != '/') {
-    path += '/';
-    pathHtml += ' <a href="' + path + '" class="last-path">/</a>';
-  }
-  $title.html(pathHtml);
-};
+//Crowi.linkPath = function(revisionPath) {
+//  var $revisionPath = revisionPath || '#revision-path';
+//  var $title = $($revisionPath);
+//  if (!$title.get(0)) {
+//    return;
+//  }
+//
+//  var path = '';
+//  var pathHtml = '';
+//  var splittedPath = $title.html().split(/\//);
+//  splittedPath.shift();
+//  splittedPath.forEach(function(sub) {
+//    path += '/';
+//    pathHtml += ' <a href="' + path + '">/</a> ';
+//    if (sub) {
+//      path += sub;
+//      pathHtml += '<a href="' + path + '">' + sub + '</a>';
+//    }
+//  });
+//  if (path.substr(-1, 1) != '/') {
+//    path += '/';
+//    pathHtml += ' <a href="' + path + '" class="last-path">/</a>';
+//  }
+//  $title.html(pathHtml);
+//};
 
 Crowi.correctHeaders = function(contentId) {
   // h1 ~ h6 の id 名を補正する
@@ -200,7 +200,7 @@ Crowi.renderer.prototype = {
 };
 
 $(function() {
-  Crowi.linkPath();
+  //Crowi.linkPath();
 
   $('[data-toggle="tooltip"]').tooltip();
   $('[data-tooltip-stay]').tooltip('show');
@@ -255,10 +255,10 @@ $(function() {
 });
 
 $(function(){
-    var renderer = new Crowi.renderer($('#raw-text-original').html());
-    renderer.render();
-    Crowi.correctHeaders('#revision-body-content');
-    Crowi.revisionToc('#revision-body-content', '#revision-toc');
+    //var renderer = new Crowi.renderer($('#raw-text-original').html());
+    //renderer.render();
+    //Crowi.correctHeaders('#revision-body-content');
+    //Crowi.revisionToc('#revision-body-content', '#revision-toc');
 
     $('a[data-toggle="tab"][href="#edit-form"]').on('show.bs.tab', function() {
       $('.content-main').addClass('on-edit');
@@ -291,26 +291,26 @@ $(function(){
     });
 });
 $(function() {
-  var pageId = $('#content-main').data('crowi-page-id');
-  $.get('/_api/page/' + pageId + '/bookmark', function(data) {
-    if (data.bookmarked) {
-      $('#bookmarkButton')
-        .removeClass('btn-default')
-        .addClass('btn-warning active bookmarked');
-      $('#bookmarkButton i')
-        .removeClass('fa-star-o')
-        .addClass('fa-star');
-    }
-  });
+  //var pageId = $('#content-main').data('crowi-page-id');
+  //$.get('/_api/page/' + pageId + '/bookmark', function(data) {
+  //  if (data.bookmarked) {
+  //    $('#bookmarkButton')
+  //      .removeClass('btn-default')
+  //      .addClass('btn-warning active bookmarked');
+  //    $('#bookmarkButton i')
+  //      .removeClass('fa-star-o')
+  //      .addClass('fa-star');
+  //  }
+  //});
 
-  $('#bookmarkButton').click(function() {
-    $.post('/_api/page/' + pageId + '/bookmark', function(data) {
-    });
-  });
-  $('#pageLikeButton').click(function() {
-    $.post('/_api/page/' + pageId + '/like', function(data) {
-    });
-  });
+  //$('#bookmarkButton').click(function() {
+  //  $.post('/_api/page/' + pageId + '/bookmark', function(data) {
+  //  });
+  //});
+  //$('#pageLikeButton').click(function() {
+  //  $.post('/_api/page/' + pageId + '/like', function(data) {
+  //  });
+  //});
 });
 //$(function() {
 //  var me = {{ user|json|safe }};
@@ -366,15 +366,15 @@ $(function() {
 $(function() {
   // preview watch
   var prevContent = "";
-  var watchTimer = setInterval(function() {
-    var content = $('#form-body').val();
-    if (prevContent != content) {
-      var renderer = new Crowi.renderer($('#form-body').val(), $('#preview-body'));
-      renderer.render();
+  //var watchTimer = setInterval(function() {
+  //  var content = $('#form-body').val();
+  //  if (prevContent != content) {
+  //    var renderer = new Crowi.renderer($('#form-body').val(), $('#preview-body'));
+  //    renderer.render();
 
-      prevContent = content;
-    }
-  }, 500);
+  //    prevContent = content;
+  //  }
+  //}, 500);
 
   // tabs handle
   $('textarea#form-body').on('keydown', function(event){
