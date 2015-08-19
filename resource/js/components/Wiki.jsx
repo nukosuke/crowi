@@ -2,6 +2,7 @@ import React from 'react';
 import marked from 'marked';
 import hljs from 'highlight';
 import request from 'superagent';
+import { Nav, NavItem, DropdownButton, MenuItem, TabbedArea, TabPane } from 'react-bootstrap';
 
 import WikiHeader from './WikiHeader';
 import Sidebar from './Sidebar';
@@ -39,6 +40,7 @@ var Wiki = React.createClass({
     return {
       data: {},
       pageLoading: true,
+      contentTab: 1,
     };
   },
 
@@ -65,6 +67,11 @@ var Wiki = React.createClass({
     });
   },
 
+  handleTabSelect: function(selectedKey) {
+    console.log(selectedKey);
+    this.setState({contentTab: selectedKey});
+  },
+
   renderPage: function() {
     if (this.state.data.path) {
       var path = this.state.data.path;
@@ -78,24 +85,17 @@ var Wiki = React.createClass({
           <WikiHeader page={ this.state.data } path={ path } />
 
           <div id="content-main" className="content-main">
-            <ul className="nav nav-tabs hidden-print">
-              <li className="">
-                <a href="#revision-body" data-toggle="tab"> <i className="fa fa-magic"></i> </a>
-              </li>
-              <li className=""><a href="#edit-form" data-toggle="tab"><i className="fa fa-pencil-square-o"></i> 編集</a></li>
+            <Nav bsStyle="tabs" className="hidden-print" onSelect={ this.handleTabSelect }>
+              <NavItem className="" eventKey={1} href="#revision-body"><i className="fa fa-magic"></i></NavItem>
+              <NavItem className="" eventKey={2}  href="#edit-form"><i className="fa fa-pencil-square-o"></i> 編集</NavItem>
 
-              <li className="dropdown pull-right">
-                <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                  <i className="fa fa-wrench"></i> <span className="caret"></span>
-                </a>
-                <ul className="dropdown-menu">
-                 <li><a href="#" data-target="#renamePage" data-toggle="modal"><i className="fa fa-share"></i> 移動</a></li>
-                 <li><a href="?presentation=1" className="toggle-presentation"><i className="fa fa-arrows-alt"></i> プレゼンモード (beta)</a></li>
-                </ul>
-              </li>
-            </ul>
+              <DropdownButton pullRight={ true } navItem={ true } title=<i className="fa fa-wrench"></i>>
+                <MenuItem href="#" data-target="#renamePage" data-toggle="modal"><i className="fa fa-share"></i> 移動</MenuItem>
+                <MenuItem href="?presentation=1" className="toggle-presentation"><i className="fa fa-arrows-alt"></i> プレゼンモード (beta)</MenuItem>
+              </DropdownButton>
+            </Nav>
 
-            <div className="tab-content wiki-content">
+            <TabbedArea defaultActiveKey={1} activeKey={ this.state.contentTab } className="wiki-content">
               <div className="alert alert-info">
                 <strong>移動しました: </strong> このページは <code> page </code> から移動しました。
               </div>
@@ -103,13 +103,16 @@ var Wiki = React.createClass({
                 <strong>注意: </strong> これは現在の版ではありません。
               </div>
 
-              <div className="tab-pane active" id="revision-body">
-                <div className="revision-toc" id="revision-toc">
+              <TabPane eventKey={1} id="revision-body">
+                <div className="reision-toc" id="revision-toc">
                   <a data-toggle="collapse" data-parent="#revision-toc" href="#revision-toc-content" className="revision-toc-head collapsed">目次</a>
                 </div>
                 <div className="wiki" id="revision-body-content" dangerouslySetInnerHTML={{__html: formattedBody }} />
-              </div>
-            </div>
+              </TabPane>
+              <TabPane eventKey={2} id="revision-form">
+                Edit
+              </TabPane>
+            </TabbedArea>
 
           </div>
           <footer>
