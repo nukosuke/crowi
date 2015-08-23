@@ -1,14 +1,23 @@
 import React from 'react';
-
+import { Nav, NavItem, DropdownButton, MenuItem, TabbedArea, TabPane } from 'react-bootstrap';
 import {Link} from 'react-router';
 
-class Header extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-  }
+var Header = React.createClass({
 
-  render() {
-    var crowiTitle = 'Crowi Wiki';
+  getDefaultProps: function() {
+    return {
+      config: {},
+    };
+  },
+
+  render: function() {
+    let crowiTitle = 'Crowi ...';
+    console.log("Header.reander", this.props.config);
+
+    if (this.props.config.crowi) {
+      let config = this.props.config;
+      crowiTitle = config.crowi['app:title'] || 'Wiki';
+    }
 
     return (
       <nav className="crowi-header navbar navbar-default" role="navigation">
@@ -18,6 +27,6 @@ class Header extends React.Component {
       </nav>
     );
   }
-}
+});
 
 export default Header;

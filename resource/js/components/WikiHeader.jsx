@@ -1,23 +1,49 @@
-import React from 'react';
+import React from 'react/addons';
+import {Link} from 'react-router';
 
 var WikiHeader = React.createClass({
   propTypes: {
     path: React.PropTypes.string,
   },
 
-  //getInitialState: function() {
-  //  return {
-  //    page: this.props.page,
-  //    path: this.props.path,
-  //  }
-  //},
-
   componentDidMount: function() {
     //console.log("WikiHeader.componentDidMount: ", this.state.page);
   },
 
+  renderWikiTitle: function(path) {
+    if (!path) {
+      return 'Loading...';
+    }
+
+    let builtPath = {};
+    let currentPath = '';
+
+    let splittedPath = path.split(/\//);
+    splittedPath.shift();
+
+    for (let i = 0, count = splittedPath.length; i < count; i++) {
+      let childPath = splittedPath[i];
+      currentPath += '/';
+      builtPath[currentPath] = <Link to={ currentPath }>/</Link>;
+      if (childPath) {
+        currentPath += childPath;
+        builtPath[currentPath] = <Link to={ currentPath }>{ childPath }</Link>;
+      }
+    }
+    if (currentPath.substr(-1, 1) != '/') {
+      currentPath += '/';
+      builtPath[currentPath] = <Link to={ currentPath } className="last-path">/</Link>;
+    }
+
+    return React.addons.createFragment(builtPath);
+  },
+
   render: function() {
-    var pageTitle = this.props.path || 'Loading ...';
+    //if (!this.props.configLoaded) {
+    //  return <div className=""><i className="fa fa-spinner fa-spin"></i> loading ... </div>;
+    //}
+
+    var pageTitle = this.renderWikiTitle(this.props.path);
 
     return (
       <div className="header-wrap">

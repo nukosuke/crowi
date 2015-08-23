@@ -36,12 +36,38 @@ marked.setOptions({
 
 var Wiki = React.createClass({
 
+  propTypes: {
+    configLoaded: React.PropTypes.boolean,
+    config: React.PropTypes.object.isRequired,
+    router: React.PropTypes.func.isRequired,
+  },
+
   getInitialState: function() {
     return {
       data: {},
-      pageLoading: true,
+      pageLoaded: false,
       contentTab: 1,
     };
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    console.log("Wiki.componentWillReceiveProps", nextProps, this.props);
+    let currentPath = nextProps.router.getCurrentPath().substr(1);
+    console.log("Wiki.componentWillReceiveProps call API with: ", currentPath);
+
+    this.setState({pageLoaded: false});
+    request.get(`/_api/page/${currentPath}`).end((err, res) => {
+      console.log(res);
+      this.setState({
+        status: res.body.status,
+        data: res.body.data,
+        pageLoaded: true,
+      });
+    });
+  },
+
+  componentWillUpdate: function(nextProps, nextState) {
+    console.log("Wiki.componentWillUpdate", nextProps, nextState);
   },
 
   componentWillMount: function() {
@@ -49,22 +75,7 @@ var Wiki = React.createClass({
   },
 
   componentDidMount: function() {
-    console.log("Wiki.componentDidMount", this.props.params.splat);
-
-    //this.setState({
-    //  status: 'ok',
-    //  page: {
-    //    path: '/this/is/title',
-    //    content: '# this is body',
-    //  },
-    //});
-    request.get(`/_api/page/${this.props.params.splat}`).end((err, res) => {
-      console.log(res);
-      this.setState({
-        status: res.body.status,
-        data: res.body.data,
-      });
-    });
+    console.log("Wiki.componentDidMount", this.props);
   },
 
   handleTabSelect: function(selectedKey) {
@@ -137,10 +148,15 @@ var Wiki = React.createClass({
   },
 
   render: function() {
-    var page = this.renderPage();
+    let page = this.renderPage();
+    let loadingIndicator = "";
+    if (!this.state.pageLoaded) {
+      loadingIndicator = ""; // @TODO
+    }
 
     return (
       <div className="container-fluid">
+        { loadingIndicator }
         <div className="row">
           <div id="main" className="main col-md-9">
 
