@@ -34,6 +34,34 @@
     {% endif %}
 
     <form role="form" action="/installer/createAdmin" method="post">
+      <div class="checkbox">
+        <label id="ldap-checkbox">
+          <input type="checkbox" name="registerForm[useLdap]"> 認証サーバを使用する
+        </label>
+      </div>
+      
+      <div id="ldap-form" style="display: none;">
+        <label for="registerForm[ldapHost]">LDAPホスト</label>
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-sitemap"></i></span>
+          <input type="text" class="form-control" name="registerForm[ldapHost]" placeholder="記入例: ldap://localhost:389"/>
+        </div>
+        
+        <label for="registerForm[ldapBindDn]">Bind DN</label>
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-paperclip"></i></span>
+          <input type="text" class="form-control" name="registerForm[ldapBindDn]" placeholder="記入例: CN=admin, DC=crowi, DC=wiki"/>
+        </div>
+
+        <label for="registerForm[ldapPassword]">パスワード</label>
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-key"></i></span>
+          <input type="password" class="form-control" name="registerForm[ldapPassword]" placeholder="LDAP Password"/>
+        </div>
+        
+        <hr/>
+      </div>
+      
       <label>ユーザーID</label>
       <div class="input-group" id="input-group-username">
         <span class="input-group-addon"><strong>@</strong></span>
@@ -86,6 +114,15 @@ $(function() {
         $('#input-group-username').addClass('has-error');
       }
     });
+  });
+  
+  $('#ldap-checkbox input[name="registerForm[useLdap]"]').change(function(e) {
+    var isLdapMode = $(this).prop('checked');
+    if (isLdapMode) {
+      $('#ldap-form').slideDown();
+    } else {
+      $('#ldap-form').slideUp();
+    }
   });
 });
 </script>
