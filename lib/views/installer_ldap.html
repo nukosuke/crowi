@@ -40,7 +40,7 @@
         <input type="text" class="form-control" name="ldapForm[host]" placeholder="記入例: ldap://localhost:389"/>
       </div>
 
-    　<label for="ldapForm[bindDn]">Bind DN</label>
+      <label for="ldapForm[bindDn]">Bind DN</label>
       <div class="input-group">
         <span class="input-group-addon"><i class="fa fa-paperclip"></i></span>
         <input type="text" class="form-control" name="ldapForm[bindDn]" placeholder="記入例: CN=admin, DC=crowi, DC=wiki"/>
@@ -51,39 +51,13 @@
         <span class="input-group-addon"><i class="fa fa-key"></i></span>
         <input type="password" class="form-control" name="ldapForm[password]" placeholder="LDAP Password"/>
       </div>
-      <input type="submit" class="btn btn-primary btn-lg btn-block" value="作成">
+      <input type="submit" class="btn btn-primary btn-lg btn-block" value="設定">
     </form>
 
   </div>
 </div>
 
 </div>
-
-<script>
-$(function() {
-  $('#register-form input[name="registerForm[username]"]').change(function(e) {
-    var username = $(this).val();
-    $('#input-group-username').removeClass('has-error');
-    $('#help-block-username').html("");
-
-    $.getJSON('/_api/check_username', {username: username}, function(json) {
-      if (!json.valid) {
-        $('#help-block-username').html('<i class="fa fa-warning"></i>このユーザーIDは利用できません。<br>');
-        $('#input-group-username').addClass('has-error');
-      }
-    });
-  });
-  
-  $('#ldap-checkbox input[name="registerForm[useLdap]"]').change(function(e) {
-    var isLdapMode = $(this).prop('checked');
-    if (isLdapMode) {
-      $('#ldap-form').slideDown();
-    } else {
-      $('#ldap-form').slideUp();
-    }
-  });
-});
-</script>
 
 {% endblock %}
 
